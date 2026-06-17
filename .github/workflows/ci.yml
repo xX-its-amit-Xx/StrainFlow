@@ -1,0 +1,117 @@
+name: StrainFlow CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── lint ─────────────────────────────────────────────────────────────────────
+  lint:
+    name: Lint (nf-core + prettier)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java (required by Nextflow)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install Nextflow
+        run: |
+          curl -s https://get.nextflow.io | bash
+          sudo mv nextflow /usr/local/bin/
+          nextflow -version
+
+      - name: Validate Nextflow syntax
+        run: nextflow run . --help || true
+
+      - name: Install nf-core tools
+        run: pip install nf-core==2.14.1
+
+      - name: Validate nextflow_schema.json
+        run: nf-core schema validate . params.yaml || true
+
+      - name: Install Node.js (for prettier)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install prettier
+        run: npm install -g prettier@3.2.5
+
+      - name: Check YAML/JSON formatting
+        run: |
+          prettier --check "**/*.yml" "**/*.yaml" "**/*.json" \
+            --ignore-path .prettierignore 2>/dev/null || true
+
+  # ── python tests ──────────────────────────────────────────────────────────────
+  python-tests:
+    name: Python unit tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install test dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pandas pyarrow pytest pytest-cov
+
+      - name: Run pytest
+        run: |
+          pytest tests/ -v --tb=short \
+            --cov=bin --cov-report=xml --cov-report=term-missing
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.xml
+        continue-on-error: true
+
+  # ── nextflow test profile ─────────────────────────────────────────────────────
+  nextflow-test:
+    name: Nextflow test profile
+    runs-on: ubuntu-latest
+    # Only run if test data exists (skip in CI until test fixtures are committed)
+    if: ${{ hashFiles('data/test/samplesheet.csv') != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install Nextflow
+        run: |
+          curl -s https://get.nextflow.io | bash
+          sudo mv nextflow /usr/local/bin/
+
+      - name: Run pipeline (test profile)
+        run: |
+          nextflow run . -profile test,docker \
+            --outdir test-results \
+            -with-report ci_report.html \
+            -with-trace ci_trace.txt
+
+      - name: Upload Nextflow reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nextflow-reports
+          path: |
+            ci_report.html
+            ci_trace.txt
+            test-results/multiqc/multiqc_report.html

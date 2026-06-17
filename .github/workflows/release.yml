@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "StrainFlow ${{ steps.version.outputs.VERSION }}"
+          body: |
+            ## StrainFlow ${{ steps.version.outputs.VERSION }}
+
+            See [CHANGELOG](CHANGELOG.md) for details.
+
+            ### Quick start
+            ```bash
+            nextflow run xX-its-amit-Xx/StrainFlow -r ${{ steps.version.outputs.VERSION }} \
+              -profile local \
+              --input samplesheet.csv \
+              --outdir results
+            ```
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.VERSION, 'rc') || contains(steps.version.outputs.VERSION, 'beta') }}

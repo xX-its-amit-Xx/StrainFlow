@@ -1,0 +1,40 @@
+# Nextflow
+.nextflow/
+.nextflow.log*
+work/
+results/
+test-results/
+*.html
+*.txt
+!data/test/README.md
+!cookbook/**/*.md
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+dist/
+.coverage
+coverage.xml
+htmlcov/
+
+# Large reference databases (never commit)
+refs/
+*.idb
+*.db
+*.bt2
+*.bt2l
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# Environment
+.env
+*.local

@@ -1,0 +1,7 @@
+work/
+results/
+.nextflow/
+node_modules/
+*.parquet
+*.bam
+*.bz2

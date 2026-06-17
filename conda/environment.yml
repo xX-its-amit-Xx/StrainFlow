@@ -1,0 +1,54 @@
+# StrainFlow conda/mamba environment — fallback when Docker is unavailable
+# Create: mamba env create -f conda/environment.yml
+# Activate: conda activate strainflow
+
+name: strainflow
+channels:
+  - biobakery
+  - bioconda
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.11
+  - nextflow>=23.10.0
+
+  # QC
+  - fastqc=0.12.1
+  - fastp=0.23.4
+
+  # Host removal
+  - bowtie2=2.5.3
+  - samtools=1.19
+
+  # Taxonomic profiling
+  - kraken2=2.1.3
+  - bracken=2.9
+  - metaphlan=4.1.1
+
+  # Strain-level resolution
+  - instrain=1.8.0
+
+  # Assembly
+  - megahit=1.2.9
+  - spades=3.15.5
+
+  # Binning
+  - metabat2=2.15
+
+  # MAG QC
+  - checkm-genome=1.2.2
+  # GTDB-Tk installed separately (large DB)
+  # conda install -c conda-forge gtdbtk=2.4.0
+
+  # Functional profiling
+  - humann=3.9
+
+  # Aggregation
+  - multiqc=1.22.3
+
+  # Python helpers
+  - pandas=2.1.4
+  - pyarrow=14.0.2
+  - pytest=7.4.4
+  - pytest-cov=4.1.0

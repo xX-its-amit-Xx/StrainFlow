@@ -1,0 +1,155 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/xX-its-amit-Xx/StrainFlow/main/nextflow_schema.json",
+  "title": "StrainFlow pipeline parameters",
+  "description": "Strain-resolved shotgun metagenomics pipeline",
+  "type": "object",
+  "definitions": {
+    "input_output_options": {
+      "title": "Input/output options",
+      "type": "object",
+      "fa_icon": "fas fa-terminal",
+      "properties": {
+        "input": {
+          "type": "string",
+          "format": "file-path",
+          "description": "Path to samplesheet CSV (columns: sample, fastq_1, fastq_2).",
+          "fa_icon": "fas fa-file-csv"
+        },
+        "outdir": {
+          "type": "string",
+          "format": "directory-path",
+          "description": "Output directory for all results.",
+          "default": "results",
+          "fa_icon": "fas fa-folder-open"
+        }
+      },
+      "required": ["input"]
+    },
+    "reference_databases": {
+      "title": "Reference databases",
+      "type": "object",
+      "fa_icon": "fas fa-database",
+      "properties": {
+        "host_index": {
+          "type": "string",
+          "description": "Bowtie2 index prefix for host genome (default: GRCh38)."
+        },
+        "kraken2_db": {
+          "type": "string",
+          "description": "Path to Kraken2 database directory."
+        },
+        "metaphlan_db": {
+          "type": "string",
+          "description": "Path to MetaPhlAn4 marker database directory."
+        },
+        "instrain_db": {
+          "type": "string",
+          "description": "Path to inStrain reference genome database."
+        },
+        "humann3_nt_db": {
+          "type": "string",
+          "description": "Path to HUMAnN3 nucleotide database (ChocoPhlAn)."
+        },
+        "humann3_prot_db": {
+          "type": "string",
+          "description": "Path to HUMAnN3 protein database (UniRef90)."
+        }
+      }
+    },
+    "kraken_bracken_options": {
+      "title": "Kraken2 / Bracken options",
+      "type": "object",
+      "properties": {
+        "bracken_length": {
+          "type": "integer",
+          "default": 150,
+          "description": "Read length for Bracken abundance re-estimation."
+        },
+        "bracken_level": {
+          "type": "string",
+          "default": "S",
+          "enum": ["D", "P", "C", "O", "F", "G", "S"],
+          "description": "Taxonomic level for Bracken re-estimation."
+        }
+      }
+    },
+    "assembly_options": {
+      "title": "Assembly options",
+      "type": "object",
+      "properties": {
+        "assembler": {
+          "type": "string",
+          "default": "megahit",
+          "enum": ["megahit", "metaspades"],
+          "description": "Assembly tool: 'megahit' (fast) or 'metaspades' (higher quality)."
+        },
+        "megahit_preset": {
+          "type": "string",
+          "default": "meta-sensitive",
+          "description": "MEGAHIT preset (meta-sensitive | meta-large)."
+        }
+      }
+    },
+    "binning_options": {
+      "title": "Binning & MAG QC",
+      "type": "object",
+      "properties": {
+        "metabat2_min_contig": {
+          "type": "integer",
+          "default": 1500,
+          "description": "Minimum contig length for MetaBAT2 binning (bp)."
+        },
+        "enable_gtdbtk": {
+          "type": "boolean",
+          "default": false,
+          "description": "Run GTDB-Tk taxonomy on MAGs (requires ~75 GB database)."
+        },
+        "gtdbtk_db": {
+          "type": "string",
+          "description": "Path to GTDB-Tk database (required when enable_gtdbtk = true)."
+        }
+      }
+    },
+    "strain_options": {
+      "title": "Strain profiling",
+      "type": "object",
+      "properties": {
+        "strainphlan_clades": {
+          "type": "string",
+          "description": "Comma-separated StrainPhlAn clade list (null = all detected clades)."
+        }
+      }
+    },
+    "resource_options": {
+      "title": "Resource limits",
+      "type": "object",
+      "properties": {
+        "max_memory": {
+          "type": "string",
+          "default": "128.GB",
+          "description": "Maximum memory allocated to any single process."
+        },
+        "max_cpus": {
+          "type": "integer",
+          "default": 32,
+          "description": "Maximum CPUs allocated to any single process."
+        },
+        "max_time": {
+          "type": "string",
+          "default": "72.h",
+          "description": "Maximum walltime for any single process."
+        }
+      }
+    }
+  },
+  "allOf": [
+    { "$ref": "#/definitions/input_output_options" },
+    { "$ref": "#/definitions/reference_databases" },
+    { "$ref": "#/definitions/kraken_bracken_options" },
+    { "$ref": "#/definitions/assembly_options" },
+    { "$ref": "#/definitions/binning_options" },
+    { "$ref": "#/definitions/strain_options" },
+    { "$ref": "#/definitions/resource_options" }
+  ]
+}

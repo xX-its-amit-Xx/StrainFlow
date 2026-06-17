@@ -1,0 +1,38 @@
+# StrainFlow — example params.yaml
+# Override any default from nextflow.config by setting values here.
+# Pass to the pipeline with: nextflow run . -params-file params.yaml
+
+# ── Required ───────────────────────────────────────────────────────────────────
+input: "samplesheet.csv"          # path to samplesheet (sample,fastq_1,fastq_2)
+outdir: "results"
+
+# ── Reference databases ────────────────────────────────────────────────────────
+host_index:      "/data/refs/GRCh38/GRCh38_noalt_bowtie2"
+kraken2_db:      "/data/refs/kraken2/k2_standard_20240605"
+metaphlan_db:    "/data/refs/metaphlan/mpa_vJan21_CHOCOPhlAnSGB_202103"
+instrain_db:     "/data/refs/instrain/MIDAS_v1.3.2.idb"
+humann3_nt_db:   "/data/refs/humann3/chocophlan"
+humann3_prot_db: "/data/refs/humann3/uniref90_annotated_v201901"
+
+# ── Kraken2 / Bracken ─────────────────────────────────────────────────────────
+bracken_length: 150     # read length for Bracken k-mer estimation
+bracken_level:  "S"     # taxonomic level: D/P/C/O/F/G/S
+
+# ── Assembly ───────────────────────────────────────────────────────────────────
+assembler:       "megahit"           # "megahit" | "metaspades"
+megahit_preset:  "meta-sensitive"
+
+# ── Binning ────────────────────────────────────────────────────────────────────
+metabat2_min_contig: 1500
+
+# ── MAG QC ─────────────────────────────────────────────────────────────────────
+enable_gtdbtk: false    # set to true only if gtdbtk_db is available (~75 GB)
+gtdbtk_db:     null
+
+# ── Resource caps ──────────────────────────────────────────────────────────────
+max_memory: "128.GB"
+max_cpus:   32
+max_time:   "72.h"
+
+# ── StrainPhlAn ────────────────────────────────────────────────────────────────
+strainphlan_clades: null  # null = run on all detected clades; or "t__SGB1885,t__SGB1880"
